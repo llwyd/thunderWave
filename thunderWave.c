@@ -12,8 +12,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <complex.h>
 #include "portaudio.h"
 #include "wavio.h"
+#include "eFFT.h"
 
 #define M_PI 3.141592653589793
 
@@ -96,6 +99,27 @@ static void quitProgram(GtkWidget *widget, gpointer data){
 	Pa_CloseStream(s->stream);
 	Pa_Terminate();
 	gtk_main_quit();
+}
+
+static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
+	guiStuff * s = (guiStuff*)data;
+	printf("FFT\n");
+	int gl=2048; //FFT/graph length
+	double complex *X;
+	int * Y=calloc(gl/2,sizeof(double complex));
+	int * f=calloc(gl/2,sizeof(double complex));
+	//short complex x[512];
+	double complex *y=calloc(gl,sizeof(double complex));
+	//	memcpy(x,s->as.audio16+s->as.p,512*sizeof(short));
+	for(int i=0;i<gl;i++){
+		y[i]=(complex double)s->as.audio16[s->as.p]/32767;
+	}
+	X=fft(y,gl);
+	printf("%f.5+i%f.5",creal(X[0]),cimag(X[0]));
+	for(int i=0;i<gl/2;i++){
+		f[i]=((double)i / (gl/ 2))*(s->as.fs / 2);
+		Y[i]=abs(X[i]);
+	}
 }
 
 static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
@@ -259,6 +283,7 @@ int main (int argc, char *argv[]){
 	draw=gtk_builder_get_object(builder,"drawingarea1");
 	g_signal_connect(draw,"draw",G_CALLBACK(drawCallback),&g);
 	fDraw=gtk_builder_get_object(builder,"drawingarea2");
+	g_signal_connect(draw,"draw",G_CALLBACK(fftCallback),&g);
 
 	button = gtk_builder_get_object(builder,"playButton");
 	g_signal_connect(button,"clicked",G_CALLBACK(playAudio),&g);	
