@@ -41,9 +41,10 @@ static int realTimeCallback(const void *input,void *output,unsigned long frameCo
 static int bufferedCallback(const void *input,void *output,unsigned long frameCount,const PaStreamCallbackTimeInfo* timeInfo,PaStreamCallbackFlags statusFlags,void *callData);
 short int * gensin(double fs,int l,double f);
 
-char * fp="sweep.wav";
+char * fp="wavs/sweep.wav";
 
 GObject * draw;
+GObject * fDraw;
 
 static void playAudio(GtkWidget *widget, gpointer data){
 	guiStuff * s = (guiStuff*)data;	
@@ -257,7 +258,7 @@ int main (int argc, char *argv[]){
 	//GObject *draw1=gtk_builder_get_object(builder,"drawingarea1");
 	draw=gtk_builder_get_object(builder,"drawingarea1");
 	g_signal_connect(draw,"draw",G_CALLBACK(drawCallback),&g);
-	GObject *draw2=gtk_builder_get_object(builder,"drawingarea2");
+	fDraw=gtk_builder_get_object(builder,"drawingarea2");
 
 	button = gtk_builder_get_object(builder,"playButton");
 	g_signal_connect(button,"clicked",G_CALLBACK(playAudio),&g);	
