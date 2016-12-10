@@ -45,6 +45,7 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 short int * gensin(double fs,int l,double f);
 
 char * fp="wavs/sweep.wav";
+//char * fp="wavs/5k.wav";
 
 GObject * draw;
 GObject * fDraw;
@@ -103,23 +104,66 @@ static void quitProgram(GtkWidget *widget, gpointer data){
 
 static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	guiStuff * s = (guiStuff*)data;
-	printf("FFT\n");
-	int gl=2048; //FFT/graph length
+	//printf("FFT\n");
+	int gl=512; //FFT/graph length
 	double complex *X;
-	int * Y=calloc(gl/2,sizeof(double complex));
-	int * f=calloc(gl/2,sizeof(double complex));
+	double * Y=calloc(gl/2,sizeof(double));
+	double * f=calloc(gl/2,sizeof(double));
 	//short complex x[512];
-	double complex *y=calloc(gl,sizeof(double complex));
+	complex double *y=calloc(gl,sizeof(complex double));
 	//	memcpy(x,s->as.audio16+s->as.p,512*sizeof(short));
 	for(int i=0;i<gl;i++){
-		y[i]=(complex double)s->as.audio16[s->as.p]/32767;
+		y[i]=((complex double)(s->as.audio16[s->as.p+i])/32767.0)+(I*0);
 	}
 	X=fft(y,gl);
-	printf("%f.5+i%f.5",creal(X[0]),cimag(X[0]));
+	//printf("%f+i%f",creal(X[0]),cimag(X[0]));
 	for(int i=0;i<gl/2;i++){
-		f[i]=((double)i / (gl/ 2))*(s->as.fs / 2);
-		Y[i]=abs(X[i]);
+		f[i]=(((double)i)/((double)gl/2.0))*((double)s->as.fs);
+		Y[i]=cabs(X[i]);
+		//Y[i]=(double)20*log10(cabs(X[i]));
+		if(Y[i]!=0){
+//			printf("(%f,%fHz)",Y[i],f[i]);
+		}
 	}
+//	printf("\n");
+	//GRAPH PLOTTING
+	//printf("%d,%d\n,",f[0],Y[0]);
+	graphStuff *b=(graphStuff*)data;
+	guint width,height;
+	GdkRGBA color;
+	GtkStyleContext *context;
+
+	context=gtk_widget_get_style_context(widget);
+	width=gtk_widget_get_allocated_width(widget);
+	height=gtk_widget_get_allocated_height(widget);
+
+	gtk_render_background(context,cr,0,0,width,height);
+
+	//cairo_new_path(cr);
+	cairo_move_to(cr,0,height/2);  
+	int diff =(gl/2)/width;
+
+	//printf("%d\n",diff);
+	for(int i=0;i<width;i++){
+		cairo_line_to(cr,i,((Y[i+diff]/(gl/4))*-1*(height-2)/2)+(height/2));
+		//cairo_line_to(cr,i,((Y[i+diff]))+(height/2));
+	}
+
+  	gtk_style_context_get_color (context,
+                               gtk_style_context_get_state (context),
+                               &color);
+  	gdk_cairo_set_source_rgba (cr, &color);
+	cairo_stroke(cr);
+ // cairo_fill (cr);
+ // */
+
+	free(y);
+	free(Y);
+	free(f);
+	
+	return FALSE;
+
+
 }
 
 static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
@@ -140,8 +184,6 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 
 	//cairo_new_path(cr);
 	cairo_move_to(cr,0,height/2);  
-//	cairo_line_to(cr,width/4,height/4);
-//	cairo_curve_to(cr,width/2,height/3,width/3,height/4,width,height);
 	//int diff=b->l/width;
 	int diff =128/width;
 
@@ -164,15 +206,13 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 static int bufferedCallback(const void *input,void *output,unsigned long frameCount,const PaStreamCallbackTimeInfo* timeInfo,PaStreamCallbackFlags statusFlags,void *callData){
 	audioSignal *b=(audioSignal*)callData;
 	short *out =(short*)output;
-	(void) timeInfo;
-	(void) statusFlags;
-	(void) input;
 	//printf("%d,",b->p);
 	for(int i=b->p;i<frameCount+b->p;i++){
 		*out++=b->audio16[i];
 		//printf("%d\n",b->audio16[i]);
 	}
 	gtk_widget_queue_draw((GtkWidget*)draw);
+	gtk_widget_queue_draw((GtkWidget*)fDraw);
 	b->p+=frameCount;
 	if(b->p>=b->datasize){
 		printf("Finished!");
@@ -188,9 +228,6 @@ static int realTimeCallback(const void *input,void *output,unsigned long frameCo
 	//guiStuff *b=(guiStuff*)callData;
 	audioSignal *b=(audioSignal*)callData;
 	short *out = (short*)output;
-	(void) timeInfo;
-	(void) statusFlags;
-	(void) input;
 //	printf("\n\n----fs=%d----\n\n",b->fs);
 //	short int posi=b->p;
 	for(int i=b->p; i<frameCount+b->p; i++ ){
@@ -282,8 +319,9 @@ int main (int argc, char *argv[]){
 	//GObject *draw1=gtk_builder_get_object(builder,"drawingarea1");
 	draw=gtk_builder_get_object(builder,"drawingarea1");
 	g_signal_connect(draw,"draw",G_CALLBACK(drawCallback),&g);
+	
 	fDraw=gtk_builder_get_object(builder,"drawingarea2");
-	g_signal_connect(draw,"draw",G_CALLBACK(fftCallback),&g);
+	g_signal_connect(fDraw,"draw",G_CALLBACK(fftCallback),&g);
 
 	button = gtk_builder_get_object(builder,"playButton");
 	g_signal_connect(button,"clicked",G_CALLBACK(playAudio),&g);	
