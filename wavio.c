@@ -9,7 +9,7 @@
 
 void readMeta(audioSignal * p,char * fp){
 	FILE *f;
-	f=fopen(fp,"r");
+	f=fopen(fp,"rb");
 	if(f==NULL){
 		printf("File not found");
 		return;
@@ -129,7 +129,7 @@ void writeMeta(audioSignal * p,char * fp){
 }
 void readBuffer16(audioSignal * p,char * fp,int start,int size){
 	p->audio16=calloc(size,sizeof(short int));
-	FILE *f=fopen(fp,"r");
+	FILE *f=fopen(fp,"rb");
 	for(int i=0;i<start;i++){
 		fgetc(f);
 	}
