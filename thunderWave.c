@@ -44,7 +44,7 @@ static int realTimeCallback(const void *input,void *output,unsigned long frameCo
 static int bufferedCallback(const void *input,void *output,unsigned long frameCount,const PaStreamCallbackTimeInfo* timeInfo,PaStreamCallbackFlags statusFlags,void *callData);
 short int * gensin(double fs,int l,double f);
 
-char * fp="wavs/sweep.wav";
+char * fp="wavs/session.wav";
 //char * fp="wavs/5k.wav";
 
 GObject * draw;
@@ -105,7 +105,7 @@ static void quitProgram(GtkWidget *widget, gpointer data){
 static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	guiStuff * s = (guiStuff*)data;
 	//printf("FFT\n");
-	int gl=512; //FFT/graph length
+	int gl=512*4; //FFT/graph length
 	double complex *X;
 	double * Y=calloc(gl/2,sizeof(double));
 	double * f=calloc(gl/2,sizeof(double));
@@ -145,8 +145,8 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 
 	//printf("%d\n",diff);
 	for(int i=0;i<width;i++){
-		cairo_line_to(cr,i,((Y[i+diff]/(gl/4))*-1*(height-2)/2)+(height/2));
-		//cairo_line_to(cr,i,((Y[i+diff]))+(height/2));
+		//cairo_line_to(cr,i,((Y[(i+diff)*width]/(gl/4))*-1*(height-2)/2)+(height/2));
+		cairo_line_to(cr,i,((Y[i+diff]))+(height/2));
 	}
 
   	gtk_style_context_get_color (context,
@@ -185,7 +185,7 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	//cairo_new_path(cr);
 	cairo_move_to(cr,0,height/2);  
 	//int diff=b->l/width;
-	int diff =128/width;
+	int diff =128*4/width;
 
 	//printf("%d\n",diff);
 	for(int i=0;i<width;i++){
