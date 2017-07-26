@@ -186,13 +186,14 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	//cairo_new_path(cr);
 	cairo_move_to(cr,0,height/2);  
 	//int diff=b->l/width;
-	int diff =128*4/width;
+	int diff =(2048)/width;
 
 	//printf("%d\n",diff);
-	for(int i=0;i<width;i++){
+	for(int i=0,j=0;i<width;i++){
 		//cairo_line_to(cr,i,(((double)b->sin[i*diff]/32767)*(height-2)/2)+(height/2));
 		//cairo_line_to(cr,i,(((double)readAudio16(b->f)/32767)*(height-2)/2)+(height/2));
-		cairo_line_to(cr,i,(((double)s->as.audio16[i+s->as.p]/32767)*(height-2)/2)+(height/2));
+		cairo_line_to(cr,i,(((double)s->as.audio16[j+s->as.p]/32767)*(height-2)/2)+(height/2));
+		j+=diff;
 	}
 
   	gtk_style_context_get_color (context,
