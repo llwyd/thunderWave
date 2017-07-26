@@ -120,6 +120,7 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	for(int i=0;i<gl/2;i++){
 		f[i]=(((double)i)/((double)gl/2.0))*((double)s->as.fs);
 		Y[i]=cabs(X[i]);
+		Y[i]=Y[i]/1.0;
 		//Y[i]=(double)20*log10(cabs(X[i]));
 		if(Y[i]!=0){
 //			printf("(%f,%fHz)",Y[i],f[i]);
@@ -146,7 +147,7 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	//printf("%d\n",diff);
 	for(int i=0;i<width;i++){
 		//cairo_line_to(cr,i,((Y[(i+diff)*width]/(gl/4))*-1*(height-2)/2)+(height/2));
-		cairo_line_to(cr,i,((Y[i+diff]))+(height/2));
+		cairo_line_to(cr,i,(height-((Y[i+diff]))-(height/2)));
 	}
 
   	gtk_style_context_get_color (context,
