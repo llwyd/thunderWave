@@ -212,7 +212,7 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 	gtk_widget_queue_draw((GtkWidget*)fDraw);
 	//gtk_adjustment_set_value((GtkAdjustment*)sScale,floor(((double)b->p/(double)b->datasize)*((double)b->audioLength/(double)b->fs)));
 	double sliderPos=floorf(((double)b->p/(double)b->datasize)*1000)/1000;
-	gtk_adjustment_set_value((GtkAdjustment*)sScale,((sliderPos)*((double)b->audioLength/(double)b->fs)));
+	gtk_adjustment_set_value((GtkAdjustment*)sScale,((sliderPos)*((double)b->audioLength/(double)b->fs*2)));
 	b->p+=frameCount;
 	if(b->p>=b->datasize){
 		printf("Finished!");
