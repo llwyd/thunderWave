@@ -49,16 +49,11 @@ char * fp="wavs/session.wav";
 
 GObject * draw;
 GObject * fDraw;
+GObject *sScale;
 
 static void playAudio(GtkWidget *widget, gpointer data){
 	guiStuff * s = (guiStuff*)data;	
 	g_print ("Play Audio!\n");
-	//gchar * m = ("MeowMEowMEow");
-	//gtk_label_set_text(GTK_LABEL(s->text),m);
-	
-        //a.sin=gensin(48000.0,48000*2,2000);
-	//a.fs=48000;
-        //a.p=0; 
 
 	Pa_Initialize();
 	/*
@@ -215,6 +210,9 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 	}
 	gtk_widget_queue_draw((GtkWidget*)draw);
 	gtk_widget_queue_draw((GtkWidget*)fDraw);
+	//gtk_adjustment_set_value((GtkAdjustment*)sScale,floor(((double)b->p/(double)b->datasize)*((double)b->audioLength/(double)b->fs)));
+	double sliderPos=floorf(((double)b->p/(double)b->datasize)*1000)/1000;
+	gtk_adjustment_set_value((GtkAdjustment*)sScale,((sliderPos)*((double)b->audioLength/(double)b->fs)));
 	b->p+=frameCount;
 	if(b->p>=b->datasize){
 		printf("Finished!");
@@ -268,11 +266,18 @@ short int * gensin(double fs,int l,double f){
  }
 
 
+static void sliderChange (GtkAdjustment *adjustment,gpointer data){
+	guiStuff *s = (guiStuff*)data;
+	gdouble test = gtk_adjustment_get_value(adjustment);
+	printf("%f\n",(double)test);
+}
+
 int main (int argc, char *argv[]){
 	GtkBuilder *builder;
 	GObject *window;
 	GObject *button;
 	GObject *sButton;
+	
 	//GObject *label;
 	GObject *wGrid;
 	
@@ -308,7 +313,7 @@ int main (int argc, char *argv[]){
 	gtk_init (&argc, &argv);
 
 	builder = gtk_builder_new ();
-	gtk_builder_add_from_file (builder, "thunderWaveBasic.ui", NULL);
+	gtk_builder_add_from_file (builder, "thunderWaveAdvanced.ui", NULL);
 
 	window = gtk_builder_get_object (builder, "window1");
 	//g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
@@ -330,6 +335,13 @@ int main (int argc, char *argv[]){
 
 	sButton=gtk_builder_get_object(builder,"stopButton");
 	g_signal_connect(sButton,"clicked",G_CALLBACK(stopAudio),&g);
+
+	sScale=gtk_builder_get_object(builder,"adjustment1");
+	g_signal_connect(sScale,"value-changed",G_CALLBACK(sliderChange),&g);
+
+	gtk_adjustment_set_value((GtkAdjustment*)sScale,0.0);
+	gtk_adjustment_set_upper((GtkAdjustment*)sScale,(double)g.as.audioLength/(double)g.as.fs);
+
 	//g.text = gtk_builder_get_object(builder,"pos");
 
 
