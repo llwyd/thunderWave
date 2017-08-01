@@ -270,7 +270,12 @@ short int * gensin(double fs,int l,double f){
 static void sliderChange (GtkAdjustment *adjustment,gpointer data){
 	guiStuff *s = (guiStuff*)data;
 	gdouble test = gtk_adjustment_get_value(adjustment);
-	printf("%f\n",(double)test);
+	double sliderPos=floorf((((double)s->as.p/(double)s->as.datasize))*((double)s->as.audioLength/(double)s->as.fs*2)*10)/10;
+
+	if(sliderPos!=test){
+		s->as.p=(int)(test*(double)s->as.fs);
+	}
+	printf("%f (%f\n)",(double)test,(double)sliderPos);
 }
 
 int main (int argc, char *argv[]){
