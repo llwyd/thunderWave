@@ -214,7 +214,7 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 	double sliderPos=floorf(((double)b->p/(double)b->datasize)*1000)/1000;
 	gtk_adjustment_set_value((GtkAdjustment*)sScale,((sliderPos)*((double)b->audioLength/(double)b->fs*2)));
 	b->p+=frameCount;
-	if(b->p>=b->datasize){
+	if(b->p>=b->audioLength){
 		printf("Finished!");
 		return paComplete;
 	}
