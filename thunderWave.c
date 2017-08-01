@@ -283,9 +283,15 @@ int main (int argc, char *argv[]){
 	GObject *window;
 	GObject *button;
 	GObject *sButton;
+
+	GObject * fileBox;
+	GObject * fsBox;
+	GObject * channelBox;
 	
 	//GObject *label;
 	GObject *wGrid;
+
+	char fsStr[8];
 	
 	guiStuff g,k;
 	
@@ -345,8 +351,20 @@ int main (int argc, char *argv[]){
 	sScale=gtk_builder_get_object(builder,"adjustment1");
 	g_signal_connect(sScale,"value-changed",G_CALLBACK(sliderChange),&g);
 
+	fileBox=gtk_builder_get_object(builder,"fileLabel");
+	fsBox=gtk_builder_get_object(builder,"fsLabel");
+	channelBox=gtk_builder_get_object(builder,"channelLabel");
+
+	
+	sprintf(fsStr,"%dHz",g.as.fs);
+
+	gtk_label_set_text((GtkLabel*)fileBox,fp);
+	gtk_label_set_text((GtkLabel*)fsBox,fsStr);
 	gtk_adjustment_set_value((GtkAdjustment*)sScale,0.0);
 	gtk_adjustment_set_upper((GtkAdjustment*)sScale,(double)g.as.audioLength/(double)g.as.fs);
+
+
+
 
 	//g.text = gtk_builder_get_object(builder,"pos");
 
