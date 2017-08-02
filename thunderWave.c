@@ -62,8 +62,8 @@ static void playAudio(GtkWidget *widget, gpointer data){
 		fgetc(s->as.f);
 	}
 	*/
-	s->as.p=s->as.start;//realtime
-	s->as.p=0;//buffered;
+	//s->as.p=s->as.start;//realtime
+	//s->as.p=0;//buffered;
 //	readBuffer16(&s->as,fp,s->as.start,s->as.datasize);
 	printf("AudioLength=%d\n",s->as.datasize);
 	printf("Opening Stream\n");
@@ -81,7 +81,7 @@ static void stopAudio(GtkWidget *widget, gpointer data){
 	guiStuff * s = (guiStuff*)data;
 	
 	//gtk_widget_queue_draw(s->draw);
-	
+	s->as.p=0;
 	printf("STOP!");
 	Pa_StopStream(s->stream);
 	Pa_CloseStream(s->stream);
@@ -204,7 +204,7 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 	audioSignal *b=(audioSignal*)callData;
 	short *out =(short*)output;
 	//printf("%d,",b->p);
-		gtk_widget_queue_draw((GtkWidget*)draw);
+	gtk_widget_queue_draw((GtkWidget*)draw);
 	gtk_widget_queue_draw((GtkWidget*)fDraw);
 		double sliderPos=((double)b->p/(double)b->datasize);
 	gtk_adjustment_set_value((GtkAdjustment*)sScale,(floorf((sliderPos)*((double)b->audioLength/(double)b->fs*2)*10)/10));
@@ -276,6 +276,10 @@ static void sliderChange (GtkAdjustment *adjustment,gpointer data){
 
 	if(sliderPos!=test){
 		s->as.p=(int)(test*(double)s->as.fs);
+	}
+	if(Pa_IsStreamActive(s->stream)!=1){
+		gtk_widget_queue_draw((GtkWidget*)draw);
+		gtk_widget_queue_draw((GtkWidget*)fDraw);
 	}
 	printf("%f (%f\n)",(double)test,(double)sliderPos);
 }
