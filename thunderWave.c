@@ -100,7 +100,7 @@ static void quitProgram(GtkWidget *widget, gpointer data){
 static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	guiStuff * s = (guiStuff*)data;
 	//printf("FFT\n");
-	int gl=512*4; //FFT/graph length
+	int gl=512*8; //FFT/graph length
 	double complex *X;
 	double * Y=calloc(gl/2,sizeof(double));
 	double * f=calloc(gl/2,sizeof(double));
@@ -204,16 +204,18 @@ static int bufferedCallback(const void *input,void *output,unsigned long frameCo
 	audioSignal *b=(audioSignal*)callData;
 	short *out =(short*)output;
 	//printf("%d,",b->p);
+		gtk_widget_queue_draw((GtkWidget*)draw);
+	gtk_widget_queue_draw((GtkWidget*)fDraw);
+		double sliderPos=((double)b->p/(double)b->datasize);
+	gtk_adjustment_set_value((GtkAdjustment*)sScale,(floorf((sliderPos)*((double)b->audioLength/(double)b->fs*2)*10)/10));
+
 	for(int i=b->p;i<frameCount+b->p;i++){
 		*out++=b->audio16[i];
 		//printf("%d\n",b->audio16[i]);
 	}
-	gtk_widget_queue_draw((GtkWidget*)draw);
-	gtk_widget_queue_draw((GtkWidget*)fDraw);
+
 	//gtk_adjustment_set_value((GtkAdjustment*)sScale,floor(((double)b->p/(double)b->datasize)*((double)b->audioLength/(double)b->fs)));
 	//double sliderPos=floorf(((double)b->p/(double)b->datasize)*100)/100;
-	double sliderPos=((double)b->p/(double)b->datasize);
-	gtk_adjustment_set_value((GtkAdjustment*)sScale,(floorf((sliderPos)*((double)b->audioLength/(double)b->fs*2)*10)/10));
 	b->p+=frameCount;
 	if(b->p>=b->audioLength){
 		printf("Finished!");
