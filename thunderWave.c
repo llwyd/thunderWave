@@ -115,7 +115,7 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	for(int i=0;i<gl/2;i++){
 		f[i]=(((double)i)/((double)gl/2.0))*((double)s->as.fs);
 		Y[i]=cabs(X[i]);
-		Y[i]=Y[i]/4.0;
+		Y[i]=Y[i]/8.0;
 		//Y[i]=(double)20*log10(cabs(X[i]));
 		if(Y[i]!=0){
 //			printf("(%f,%fHz)",Y[i],f[i]);
