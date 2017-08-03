@@ -108,14 +108,14 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	complex double *y=calloc(gl,sizeof(complex double));
 	//	memcpy(x,s->as.audio16+s->as.p,512*sizeof(short));
 	for(int i=0;i<gl;i++){
-		y[i]=((complex double)(s->as.audio16[s->as.p+i])/32767.0)+(I*0);
+		y[i]=((complex double)(s->as.audio16[s->as.p+i])/32768.0)+(I*0);
 	}
 	X=fft(y,gl);
 	//printf("%f+i%f",creal(X[0]),cimag(X[0]));
 	for(int i=0;i<gl/2;i++){
 		f[i]=(((double)i)/((double)gl/2.0))*((double)s->as.fs);
 		Y[i]=cabs(X[i]);
-		Y[i]=Y[i]/4.0;
+		Y[i]=Y[i]/8.1;
 		//Y[i]=(double)20*log10(cabs(X[i]));
 		if(Y[i]!=0){
 //			printf("(%f,%fHz)",Y[i],f[i]);
@@ -187,7 +187,7 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	for(int i=0,j=0;i<width;i++){
 		//cairo_line_to(cr,i,(((double)b->sin[i*diff]/32767)*(height-2)/2)+(height/2));
 		//cairo_line_to(cr,i,(((double)readAudio16(b->f)/32767)*(height-2)/2)+(height/2));
-		cairo_line_to(cr,i,(((double)s->as.audio16[j+s->as.p]/32767)*(height-2)/2)+(height/2));
+		cairo_line_to(cr,i,(((double)s->as.audio16[j+s->as.p]/32768)*(height-2)/2)+(height/2));
 		j+=diff;
 	}
 
