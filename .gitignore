@@ -2,7 +2,6 @@
 libportaudio.a
 portaudio.h
 *.o
-eFFT.*
 TW
 backupThunderWave.c
 thunderWaveBasic.glade

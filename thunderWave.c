@@ -137,7 +137,7 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	free(y);
 	free(Y);
 	free(f);
-	return FALSE;
+	return TRUE;
 
 
 }
@@ -164,13 +164,12 @@ static gboolean drawCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
                                &color);
   	gdk_cairo_set_source_rgba (cr, &color);
 	cairo_stroke(cr);
-	return FALSE;
+	return TRUE;
 }
 static int bufferedCallback(const void *input,void *output,unsigned long frameCount,const PaStreamCallbackTimeInfo* timeInfo,PaStreamCallbackFlags statusFlags,void *callData){
 	audioSignal *b=(audioSignal*)callData;
 	short *out =(short*)output;
-	gtk_widget_queue_draw((GtkWidget*)draw);
-	gtk_widget_queue_draw((GtkWidget*)fDraw);
+
 	double sliderPos=((double)b->p/(double)b->datasize);
 	gtk_adjustment_set_value((GtkAdjustment*)sScale,(floorf((sliderPos)*((double)b->audioLength/(double)b->fs*2)*10)/10));
 	for(int i=b->p;i<frameCount+b->p;i++){
@@ -210,8 +209,8 @@ static void sliderChange (GtkAdjustment *adjustment,gpointer data){
 		s->as.p=(int)(test*(double)s->as.fs);
 	}
 	if(Pa_IsStreamActive(s->stream)!=1){
-		gtk_widget_queue_draw((GtkWidget*)draw);
-		gtk_widget_queue_draw((GtkWidget*)fDraw);
+		//gtk_widget_queue_draw((GtkWidget*)draw);
+		//gtk_widget_queue_draw((GtkWidget*)fDraw);
 	}
 	printf("%f (%f\n)",(double)test,(double)sliderPos);
 }
@@ -244,7 +243,7 @@ static void openFile(GtkWidget *widget, gpointer data){
 	char * bitStr=calloc(7,sizeof(char));
 	sprintf(fsStr,"%dHz",s->as.fs);
 	sprintf(bitStr,"%dBit",(int)s->as.bps);
-	gtk_label_set_text((GtkLabel*)fileBox,fp);
+	gtk_label_set_text((GtkLabel*)fileBox,(fp+32));
 	gtk_label_set_text((GtkLabel*)fsBox,fsStr);
 	gtk_label_set_text((GtkLabel*)bitBox,bitStr);
 	
@@ -253,6 +252,14 @@ static void openFile(GtkWidget *widget, gpointer data){
 	gtk_adjustment_set_value((GtkAdjustment*)sScale,0.0);
 	gtk_adjustment_set_upper((GtkAdjustment*)sScale,(double)s->as.audioLength/(double)s->as.fs);
 	gtk_widget_destroy ((GtkWidget*)dialog);
+}
+
+static gboolean guiLoop(gpointer data){
+	guiStuff * s = (guiStuff*)data;
+	//separate thread to update graph wrt current position
+	gtk_widget_queue_draw((GtkWidget*)draw);
+	gtk_widget_queue_draw((GtkWidget*)fDraw);
+	return TRUE;
 }
 
 int main (int argc, char *argv[]){
@@ -325,7 +332,7 @@ int main (int argc, char *argv[]){
 	g_signal_connect(sScale,"value-changed",G_CALLBACK(sliderChange),&g);
 
 	
-
+	g_timeout_add(1, guiLoop, &g);
 
 	fileBox=gtk_builder_get_object(builder,"fileLabel");
 	fsBox=gtk_builder_get_object(builder,"fsLabel");
