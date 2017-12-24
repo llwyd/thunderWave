@@ -33,7 +33,7 @@ void readMeta(audioSignal * p,char * fp){
 	p->bps=hex2dec2Byte(fgetc(f),fgetc(f));
 	//Tag skipping code here
 	fread(tag,sizeof(char),4,f);
-	//tag[4]='\0';
+	tag[4]='\0';
 	printf("fs = %d\n",p->fs);
 	printf("%c",tag[0]);
 	printf("%c",tag[1]);
