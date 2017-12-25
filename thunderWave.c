@@ -32,6 +32,7 @@ typedef struct{
 	audioData a;
 	audioSignal as;
 	FILE *f;//Audio fileStream
+	char realFlag;
 }guiStuff;
 typedef struct{
 	FILE *f;
@@ -55,7 +56,21 @@ GObject * bitBox;
 GObject * draw;
 GObject * fDraw;
 GObject *sScale;
+GObject *toggle;
 GtkWidget* dialog;
+
+
+static void realToggle(GtkWidget *widget,gpointer data){
+	guiStuff *s=(guiStuff*)data;
+	if(s->realFlag==0){
+		printf("Real Time Active!\n");
+		s->realFlag++;
+	}
+	else{
+		printf("Real Time InActive!\n");
+		s->realFlag--;
+	}
+}
 
 static void playAudio(GtkWidget *widget, gpointer data){
 	guiStuff * s = (guiStuff*)data;	
@@ -279,7 +294,7 @@ int main (int argc, char *argv[]){
 	readMeta(&g.as,fp);
 	readBuffer16(&g.as,fp,g.as.start,g.as.datasize);
 	g.as.p=0;
-	
+	g.realFlag=0;
 	//g.as.g=fopen(fp,"r");
 	
 
@@ -332,6 +347,9 @@ int main (int argc, char *argv[]){
 	g_signal_connect(sScale,"value-changed",G_CALLBACK(sliderChange),&g);
 
 	
+	toggle=gtk_builder_get_object(builder,"realTimeButton");
+	g_signal_connect(toggle,"toggled",G_CALLBACK(realToggle),&g);
+
 	g_timeout_add(1, guiLoop, &g);
 
 	fileBox=gtk_builder_get_object(builder,"fileLabel");
