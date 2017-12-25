@@ -65,10 +65,18 @@ static void realToggle(GtkWidget *widget,gpointer data){
 	if(s->realFlag==0){
 		printf("Real Time Active!\n");
 		s->realFlag++;
+		gtk_widget_set_sensitive((GtkWidget*)button,FALSE);
+		gtk_widget_set_sensitive((GtkWidget*)sButton,FALSE);
+		gtk_widget_set_sensitive((GtkWidget*)openButton,FALSE);
+		gtk_widget_set_sensitive((GtkWidget*)sScale,FALSE);
 	}
 	else{
 		printf("Real Time InActive!\n");
 		s->realFlag--;
+		gtk_widget_set_sensitive((GtkWidget*)button,TRUE);
+		gtk_widget_set_sensitive((GtkWidget*)sButton,TRUE);
+		gtk_widget_set_sensitive((GtkWidget*)openButton,TRUE);
+		gtk_widget_set_sensitive((GtkWidget*)sScale,TRUE);
 	}
 }
 
