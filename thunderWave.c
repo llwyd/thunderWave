@@ -68,7 +68,7 @@ static void realToggle(GtkWidget *widget,gpointer data){
 		gtk_widget_set_sensitive((GtkWidget*)button,FALSE);
 		gtk_widget_set_sensitive((GtkWidget*)sButton,FALSE);
 		gtk_widget_set_sensitive((GtkWidget*)openButton,FALSE);
-		gtk_widget_set_sensitive((GtkWidget*)sScale,FALSE);
+		//gtk_widget_set_sensitive((GtkWidget*)sScale,FALSE);
 	}
 	else{
 		printf("Real Time InActive!\n");
@@ -76,7 +76,7 @@ static void realToggle(GtkWidget *widget,gpointer data){
 		gtk_widget_set_sensitive((GtkWidget*)button,TRUE);
 		gtk_widget_set_sensitive((GtkWidget*)sButton,TRUE);
 		gtk_widget_set_sensitive((GtkWidget*)openButton,TRUE);
-		gtk_widget_set_sensitive((GtkWidget*)sScale,TRUE);
+		//gtk_widget_set_sensitive((GtkWidget*)sScale,TRUE);
 	}
 }
 
@@ -132,7 +132,7 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	}
 	X=fft(y,gl);
 	for(int i=0;i<gl/2;i++){
-		f[i]=(((double)i)/((double)gl/2.0))*((double)s->as.fs);
+		f[i]=(((double)i)/((double)gl/2.0))*((double)(s->as.fs/2));
 		Y[i]=cabs(X[i]);
 		Y[i]=Y[i]/4.0;
 		//Y[i]=(double)20*log10(cabs(X[i]));
@@ -149,8 +149,8 @@ static gboolean fftCallback(GtkWidget *widget,cairo_t *cr,gpointer data){
 	gtk_render_background(context,cr,0,0,width,height);
 	cairo_move_to(cr,0,height/2);  
 	int diff =(gl/2)/width;
-	for(int i=0;i<width;i++){
-		cairo_line_to(cr,i,(height-((Y[i+diff]))-(height/2)));
+	for(int i=0,j=0;i<width;i++,j+=diff){
+		cairo_line_to(cr,i,(height-((Y[j]))-(height/2)));
 	}
   	gtk_style_context_get_color (context,
                                gtk_style_context_get_state (context),
